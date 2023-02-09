@@ -92,6 +92,7 @@ def bisection(h, M, weights=[]):
     delta = 0.005
     UB = 999999999
     LB = 0
+    # 开始二分
     while UB - LB > delta:
         v = (float(UB) + LB)/2
         if Q(v) > 0:

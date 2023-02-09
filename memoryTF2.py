@@ -59,6 +59,7 @@ class MemoryDNN:
         self.model.compile(optimizer=keras.optimizers.Adam(lr=self.lr), loss=tf.losses.binary_crossentropy, metrics=['accuracy'])
 
     def remember(self, h, m):
+        # 旧值替换新值
         # replace the old memory with new memory
         idx = self.memory_counter % self.memory_size
         self.memory[idx, :] = np.hstack((h, m))
@@ -70,6 +71,7 @@ class MemoryDNN:
         self.remember(h, m)
         # train the DNN every 10 step
 #        if self.memory_counter> self.memory_size / 2 and self.memory_counter % self.training_interval == 0:
+        # 到一定容量再开始训练
         if self.memory_counter % self.training_interval == 0:
             self.learn()
 
@@ -109,9 +111,13 @@ class MemoryDNN:
     def knm(self, m, k = 1):
         # return k order-preserving binary actions
         m_list = []
+        # 根据式 8 生成第 1 个解
         # generate the ﬁrst binary ofﬂoading decision with respect to equation (8)
+        # 生成k个决策
         m_list.append(1*(m>0.5))
-        
+
+        # 根据式 9 生成剩下 K-1 个解
+        # order-preserving quantization method 比KNN方法效率高。5.1节进行对比。
         if k > 1:
             # generate the remaining K-1 binary ofﬂoading decisions with respect to equation (9)
             m_abs = abs(m-0.5)
@@ -124,6 +130,7 @@ class MemoryDNN:
                     # set the \hat{x}_{t,(k-1)} to 1
                     m_list.append(1*(m - m[idx_list[i]] >= 0))
 
+        # m_list 的长度为 K
         return m_list
     
     def knn(self, m, k = 1):
