@@ -123,7 +123,7 @@ if __name__ == "__main__":
             # 更新max_k，最终目的是更新K值
             # index counts from 0
             if Delta > 1:
-                # 取k_idx_his后32位中最大的一位
+                # 取k_idx_his(历史k值)后32位中最大的一位
                 max_k = max(k_idx_his[-Delta:-1]) + 1
             else:
                 # 取k_idx_his最后一位。按照设置的Delta值，不会走到这一分支

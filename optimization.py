@@ -55,16 +55,23 @@ def bisection(h, M, weights=[]):
 
     if len(weights) == 0:
         # default weights [1, 1.5, 1, 1.5, 1, 1.5, ...]
+        # WD 权重值
         weights = [1.5 if i%2==1 else 1 for i in range(len(M))]
-        
+
     wi=np.array([weights[M0[i]] for i in range(len(M0))])
     wj=np.array([weights[M1[i]] for i in range(len(M1))])
     
     
     def sum_rate(x):
+        # x[0] 是 a
+        # 最终求值使用
+        # 直接求和
         sum1=sum(wi*eta1*(hi/ki)**(1.0/3)*x[0]**(1.0/3))
         sum2=0
         for i in range(len(M1)):
+            # tao i = x[i+1]
+            # a = x[0]
+            # 使用 for 循环求和
             sum2+=wj[i]*epsilon*x[i+1]*np.log(1+eta2*hj[i]**2*x[0]/x[i+1])
         return sum1+sum2
 
@@ -79,9 +86,12 @@ def bisection(h, M, weights=[]):
         return 1/(1 + p1 * eta2)
 
     def Q(v):
+        # 以 a 为自变量求导，即 v
         sum1 = sum(wi*eta1*(hi/ki)**(1.0/3))*p1(v)**(-2/3)/3
         sum2 = 0
         for j in range(len(M1)):
+            # 以 变量 a 和 tao 为自变量求导，即 v 和 j 。 φ
+            # 对 j 遍历，因此得到 j 值
             sum2 += wj[j]*hj[j]**2/(1 + 1/phi(v,j))
         return sum1 + sum2*epsilon*eta2 - v
 
@@ -92,16 +102,19 @@ def bisection(h, M, weights=[]):
     delta = 0.005
     UB = 999999999
     LB = 0
-    # 开始二分
+    # 开始二分，目的是找到目标 v
     while UB - LB > delta:
         v = (float(UB) + LB)/2
+        # Q 函数是目标函数一阶导数（一维搜索方法：二分法、牛顿法、割线法）
         if Q(v) > 0:
             LB = v
         else:
             UB = v
 
+    # 计算结果 a
     x.append(p1(v))
     for j in range(len(M1)):
+        # 计算结果 tao
         x.append(tau(v, j))
 
     return sum_rate(x), x[0], x[1:]
